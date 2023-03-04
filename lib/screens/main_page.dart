@@ -49,6 +49,10 @@ class _MainPageState extends State<MainPage> {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.remove('user');
       localStorage.remove('token');
+      Navigator.popUntil(
+        context,
+        ModalRoute.withName('/'),
+      );
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context)=>Options()));
@@ -59,6 +63,7 @@ class _MainPageState extends State<MainPage> {
     var data = {
       "api":"true",
       "id": id,
+      "user_id" : widget.login[1],
     };
     var res = await Network().authData(data, '/list_packages');
     var convertedData;
@@ -81,7 +86,7 @@ class _MainPageState extends State<MainPage> {
     var convertedData;
     if(res.statusCode == 200){
       convertedData =json.decode(res.body);
-      convertedData =convertedData['job_seeker'];
+      // convertedData =convertedData['job_seeker'];
     }
     else{
       convertedData = 0;
@@ -141,6 +146,9 @@ class _MainPageState extends State<MainPage> {
       );
   @override
   Widget build(BuildContext context) {
+    var now = DateTime.now();
+    var formatter = DateFormat('yyyy-MM-dd H:mm:ss');
+    var formattedDate = formatter.format(now);
     return Scaffold(
         body: _body(),
         key: _scaffoldKey,
@@ -297,10 +305,7 @@ class _MainPageState extends State<MainPage> {
                   alignment: FractionalOffset.bottomCenter,
                   child: ListTile(
                     title: Text(
-                        DateFormat('dd-MM-yyyy h:mm a')
-
-                            // displaying formatted date
-                            .format(DateTime.now()),
+                        formattedDate,
                         style: TextStyle(
                             fontSize: 10,
                             color: Color.fromRGBO(58, 54, 115, 1))),

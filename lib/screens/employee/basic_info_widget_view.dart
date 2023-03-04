@@ -2,31 +2,26 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:join_re/screens/email_verification/verify_email.dart';
-import 'package:join_re/screens/mobile_verification/verify_mobile.dart';
+import 'package:join_re/screens/employee/preview_page.dart';
 
-import 'basic_info.dart';
-
-class BasicInfoWidget extends StatefulWidget {
-  final index;
-  const BasicInfoWidget({
-    Key? key,this.index,
-  }) : super(key: key);
+class BasicInfoWidgetView extends StatefulWidget {
+  final data;
+  const BasicInfoWidgetView({Key? key, this.data}) : super(key: key);
 
   @override
-  State<BasicInfoWidget> createState() => _BasicInfoWidgetState();
+  State<BasicInfoWidgetView> createState() => _BasicInfoWidgetViewState();
 }
 
-
-class _BasicInfoWidgetState extends State<BasicInfoWidget> {
+class _BasicInfoWidgetViewState extends State<BasicInfoWidgetView> {
   Future<void> _selectDate(BuildContext context) async {
     DateTime now = new DateTime.now();
+    DateTime selectedDate = DateTime.now();
 
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(1950, 1),
-        lastDate: DateTime(now.year,now.month,now.day));
+        firstDate: DateTime(1950, 1, 1),
+        lastDate: selectedDate);
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
@@ -34,11 +29,18 @@ class _BasicInfoWidgetState extends State<BasicInfoWidget> {
     }
   }
 
+  final formGlobalKey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    super.initState();
+    captcha.text = getRandomString(5);
+    // password.text = widget.data['password'];
+  }
 
   bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
-      return Container(
+    return Container(
         height: 400,
         child: Column(children: [
           TextFormField(
@@ -59,98 +61,41 @@ class _BasicInfoWidgetState extends State<BasicInfoWidget> {
               labelText: 'Name',
             ),
           ),
-          Stack(
-              // mainAxisSize: MainAxisSize.min,
-
-              children: <Widget>[
-                TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Email';
-                    }
-                    return null;
-                  },
-                  controller: email,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xff3A3673),
-                      fontFamily: 'Open Sans'),
-                  decoration: InputDecoration(
-                    // border: Outline(),
-                    labelText: 'Email',
-                  ),
-                ),
-                Positioned(
-                    top: 30,
-                    right: MediaQuery.of(context).size.width * 0.015,
-                    child: GestureDetector(
-                        onTap: () {
-                          // Navigator.pushNamed(context, "/verify_email",
-                          //     arguments: "employee");
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => VerifyEmail(email:email.text)),
-                          );
-                        },
-                        child: Text(
-                          'Verify',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                              color: Color.fromRGBO(58, 54, 115, 1),
-                              fontFamily: 'Roboto',
-                              fontSize: 12,
-                              letterSpacing:
-                                  0.1 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.normal,
-                              height: 0.5),
-                        )))
-              ]),
-          Stack(children: <Widget>[
-            TextFormField(
-              controller:mobile,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Mobile';
-                }
-                return null;
-              },
-              keyboardType: TextInputType.number,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xff3A3673),
-                  fontFamily: 'Open Sans'),
-              decoration: InputDecoration(
-                // border: Outline(),
-                labelText: 'Mobile No',
-              ),
+          TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter Email';
+              }
+              return null;
+            },
+            controller: email,
+            style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff3A3673),
+                fontFamily: 'Open Sans'),
+            decoration: InputDecoration(
+              // border: Outline(),
+              labelText: 'Email',
             ),
-            Positioned(
-                top: 30,
-                right: MediaQuery.of(context).size.width * 0.015,
-                child: GestureDetector(
-                    onTap: () {
-                      // Navigator.pushNamed(context, "/verify_mobile",
-                      //     arguments: "employee");
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => VerifyMobile(phoneNumber:mobile.text)),
-                      );
-                    },
-                    child: Text(
-                      'Verify',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          color: Color.fromRGBO(58, 54, 115, 1),
-                          fontFamily: 'Roboto',
-                          fontSize: 12,
-                          letterSpacing:
-                              0.1 /*percentages not used in flutter. defaulting to zero*/,
-                          fontWeight: FontWeight.normal,
-                          height: 0.5),
-                    )))
-          ]),
+          ),
+          TextFormField(
+            controller: mobile,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter Mobile';
+              }
+              return null;
+            },
+            keyboardType: TextInputType.number,
+            style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff3A3673),
+                fontFamily: 'Open Sans'),
+            decoration: InputDecoration(
+              // border: Outline(),
+              labelText: 'Mobile No',
+            ),
+          ),
           Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -159,13 +104,7 @@ class _BasicInfoWidgetState extends State<BasicInfoWidget> {
                     child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 10.0, 0),
                   child: TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Gender';
-                        }
-                        return null;
-                      },
-                    controller: gender,
+                      controller: gender,
                       style: TextStyle(
                           fontSize: 12,
                           color: Color(0xff3A3673),
@@ -178,12 +117,6 @@ class _BasicInfoWidgetState extends State<BasicInfoWidget> {
                     child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter DOB';
-                        }
-                        return null;
-                      },
                       controller: dob,
                       onTap: () async {
                         // Below line stops keyboard from appearing
@@ -289,7 +222,6 @@ class _BasicInfoWidgetState extends State<BasicInfoWidget> {
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          // initialValue: code,
                           style: TextStyle(
                               letterSpacing: 5.0,
                               fontSize: 12,

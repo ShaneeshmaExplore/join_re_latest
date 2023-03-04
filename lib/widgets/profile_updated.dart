@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:join_re/screens/employee/preview_page.dart';
 
 class ProfileUpdated extends StatefulWidget {
+
+  final data;
+  const ProfileUpdated({Key? key,this.data}) : super(key: key);
   @override
   _ProfileUpdatedState createState() => _ProfileUpdatedState();
 }
@@ -20,11 +24,11 @@ class _ProfileUpdatedState extends State<ProfileUpdated> {
   }
 
   route() {
-    // Navigator.pushReplacement(context, MaterialPageRoute(
-    //     builder: (context) => Options()
-    //   )
-    // );
-    Navigator.pushReplacementNamed(context, '/preview_employee');
+    Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => PreviewPage(data: widget.data)
+      )
+    );
+    // Navigator.pushReplacementNamed(context, '/preview_employee');
   }
 
   Widget build(BuildContext context) {

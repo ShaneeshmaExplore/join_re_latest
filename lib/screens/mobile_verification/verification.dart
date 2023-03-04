@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Verification extends StatefulWidget {
+  final phoneNumber;
+  const Verification({Key? key, this.phoneNumber}) : super(key: key);
   @override
   _VerificationState createState() => _VerificationState();
 }
@@ -284,8 +287,8 @@ class _VerificationState extends State<Verification> {
                           //   formGlobalKey.currentState.save();
                           //   // use the email provided here
                           // }
-                          Navigator.pushReplacementNamed(
-                              context, "/email_success");
+                          // Navigator.pushReplacementNamed(
+                          //     context, "/email_success");
                         },
                         child: Text("Submit")))
 

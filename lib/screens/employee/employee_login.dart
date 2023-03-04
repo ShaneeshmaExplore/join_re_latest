@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:join_re/screens/employee/basic_info.dart';
+import 'package:join_re/screens/employee/education.dart';
 import 'package:join_re/screens/employee/employee_home.dart';
 import 'package:join_re/screens/main_page.dart';
 import 'package:join_re/utils/api.dart';
@@ -20,25 +21,22 @@ class _EmployeeLoginState extends State<EmployeeLogin> {
   var email;
   var password;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  _showMsg(msg) {
-    final snackBar = SnackBar(
-      content: Text(msg),
-      action: SnackBarAction(
-        label: 'Close',
-        onPressed: () {
-          // Some code to undo the change!
-        },
+
+  void _showMsg(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Invalid Credentials'),
       ),
     );
-    // _scaffoldKey.currentState.showSnackBar(snackBar);
   }
+
   @override
   Widget build(BuildContext context) {
     // Figma Flutter Generator EmployeeLogin - FRAME
 
     return Form(
         key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Scaffold(
             resizeToAvoidBottomInset: true,
             // appBar: Header(),
@@ -140,21 +138,6 @@ class _EmployeeLoginState extends State<EmployeeLogin> {
                                   splashColor: Colors.black12,
                                   onTap: () {
                                     if (_formKey.currentState!.validate()) {
-                                      // If the form is valid, display a snackbar. In the real world,
-                                      // you'd often call a server or save the information in a database.
-                                      // ScaffoldMessenger.of(context)
-                                      //     .showSnackBar(
-                                      //   const SnackBar(
-                                      //       content: Text('Processing Data',
-                                      //       textAlign: TextAlign.center,)),
-                                      // );
-
-                                    //   Navigator.pushNamed(
-                                    //       context, '/employee_home');
-                                    // } else {
-                                    //   // Navigator.pushNamed(
-                                    //   //     context, '/employee_home');
-                                    // }
                                        ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 const SnackBar(
@@ -233,13 +216,9 @@ class _EmployeeLoginState extends State<EmployeeLogin> {
                             Expanded(
                                 child: InkWell(
                                     onTap: () {
-                                      // Navigator.pushNamed(
-                                      //     context, '/basic_info_employee');
+                                      Navigator.pushNamed(
+                                          context, '/basic_info_employee');
 
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => BasicInfo(data:[]),),);
                                     },
                                     child: const Text(
                                       'Sign up',
@@ -285,18 +264,20 @@ void _login() async{
     var res = await Network().authData(data, '/login');
     var body = json.decode(res.body);
     if(body['success']){
+      // Scaffold.of(context).hideCurrentSnackBar();
+
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('token', json.encode(body['token']));
       localStorage.setString('user', json.encode(body['user']));
 
-      List<dynamic> items = [body['user'],body['id']];
+      List<dynamic> items = [body['user'],body['id'],body['details']];
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => MainPage(pg:0,login:items,package_id: '',
           ),),);
     }else{
-      _showMsg(body['message']);
+      _showMsg(context);
     }
 
     setState(() {

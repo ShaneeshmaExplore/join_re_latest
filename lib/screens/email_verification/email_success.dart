@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:join_re/screens/employee/basic_info.dart';
 
 class EmailSuccess extends StatefulWidget {
   @override
@@ -20,13 +21,10 @@ class _EmailSuccessState extends State<EmailSuccess> {
   }
 
   route() {
-    // Navigator.pushReplacement(context, MaterialPageRoute(
-    //     builder: (context) => Options()
-    //   )
-    // );
-    Navigator.pop(context, '/');
-    Navigator.pop(context, '/');
-    // Navigator.pop(context, '/');
+    Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => BasicInfo(mobile_verified:true)
+    )
+    );
   }
 
   Widget build(BuildContext context) {

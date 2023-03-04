@@ -1,6 +1,9 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:join_re/screens/main_page.dart';
+import 'package:join_re/utils/api.dart';
 import 'package:join_re/utils/constants/dimension.dart';
 import 'package:join_re/utils/constants/string.dart';
 import '../../utils/constants/colors.dart';
@@ -25,11 +28,114 @@ final objMainPageState = MainPage();
 
 @override
 class _PackageConfirmationState extends State<PackageConfirmation> {
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.packages);
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _razorpay.clear();
+  }
+
+  void openCheckout() async {
+
+    var options = {
+      'key': 'rzp_test_qP5nDSssYRMPRD',
+      'amount': int.parse(widget.packages['packages'][0]['amount'])*100,
+      // 'amount': 100,
+      'name': 'JoinRe',
+      // 'description': '',
+      'description': widget.packages['packages'][0]['description'],
+      'retry': {'enabled': true, 'max_count': 1},
+      'send_sms_hash': true,
+      // 'prefill': {'contact': '8888888888', 'email': 'test@gmail.com'},
+      'prefill': {'contact': widget.packages['user']['mobile'], 'email': widget.packages['user']['email']},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      // debugPrint(e);
+    }
+  }
+
+
+
+  void showAlertDialog(BuildContext context, String title, String message){
+    // set up the buttons
+    Widget continueButton = ElevatedButton(
+      child: const Text("OK"),
+      onPressed:  () {
+        Navigator.pop(context);
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        continueButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    showAlertDialog(
+        context, "Payment Successful", "Payment ID: ${response.paymentId}");
+    update_selected_package();
+    Navigator.pop(context);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    showAlertDialog(context, "Payment Failed", "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    showAlertDialog(context, "External Wallet Selected", "${response.walletName}");
+
+  }
+
+  void update_selected_package()async{
+
+    var data = {
+      "user_id":  widget.packages['user']['id'],
+      "plan_id": widget.packages['packages'][0]['id'],
+      "payment_mode": "online"
+    } ;
+    var res = await Network().authData(data, '/update_selected_package');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      Navigator.pop(context
+      );
+    }
+
+  }
   @override
   Widget build(BuildContext context) {
     // Figma Flutter Generator PackageConfirmation - FRAME
 
-    return SingleChildScrollView(
+    return
+      widget.packages == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Container(
             width: MediaQuery.of(context).size.width,
             // height: MediaQuery.of(context).size.height,
@@ -326,23 +432,8 @@ class _PackageConfirmationState extends State<PackageConfirmation> {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              Razorpay razorpay = Razorpay();
-                              var options = {
-                                'key': 'rzp_test_qP5nDSssYRMPRD',
-                                'amount': 100,
-                                'name': 'JoinRe', 
-                                'description': '',
-                                'retry': {'enabled': true, 'max_count': 1},
-                                'send_sms_hash': true,
-                                'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'},
-                                'external': {
-                                  'wallets': ['paytm']
-                                }
-                              };
-                              razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentErrorResponse);
-                              razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccessResponse);
-                              razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWalletSelected);
-                              razorpay.open(options);
+                                    openCheckout();
+
                             },
                             child: Container(
                                 alignment: Alignment.center,
@@ -367,52 +458,4 @@ class _PackageConfirmationState extends State<PackageConfirmation> {
               ],
             )));
   }
-
-
-void handlePaymentErrorResponse(PaymentFailureResponse response){
-  /*
-    * PaymentFailureResponse contains three values:
-    * 1. Error Code
-    * 2. Error Description
-    * 3. Metadata
-    * */
-  showAlertDialog(context, "Payment Failed", "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
-}
-
-void handlePaymentSuccessResponse(PaymentSuccessResponse response){
-  /*
-    * Payment Success Response contains three values:
-    * 1. Order ID
-    * 2. Payment ID
-    * 3. Signature
-    * */
-  showAlertDialog(context, "Payment Successful", "Payment ID: ${response.paymentId}");
-}
-
-void handleExternalWalletSelected(ExternalWalletResponse response){
-  showAlertDialog(context, "External Wallet Selected", "${response.walletName}");
-}
-
-void showAlertDialog(BuildContext context, String title, String message){
-  // set up the buttons
-  Widget continueButton = ElevatedButton(
-    child: const Text("Continue"),
-    onPressed:  () {},
-  );
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text(title),
-    content: Text(message),
-    actions: [
-      continueButton,
-    ],
-  );
-  // show the dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}
 }

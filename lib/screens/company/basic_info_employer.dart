@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:join_re/screens/company/company_profile.dart';
+import 'package:join_re/screens/email_verification/verify_email.dart';
 
 import 'package:join_re/screens/employee/basic_info.dart';
 import 'package:join_re/screens/mobile_verification/verify_mobile.dart';
@@ -38,12 +39,11 @@ class _BasicInfoEmployerState extends State<BasicInfoEmployer>
     var id;
     var data = {
       "api":true,
-      "id":'',
       "name" : business_name.text,
       "type" : "Provider",
       "mobile" : mobile.text,
       "email" : email.text,
-      "password" : password,
+      "password" : password.text,
       "contact_person" : contact_person.text,
 
     };
@@ -194,11 +194,16 @@ class _BasicInfoEmployerState extends State<BasicInfoEmployer>
                                                             0.015,
                                                     child: GestureDetector(
                                                         onTap: () {
-                                                          Navigator.pushNamed(
-                                                              context,
-                                                              "/verify_email",
-                                                              arguments:
-                                                                  "employer");
+                                                          // Navigator.pushNamed(
+                                                          //     context,
+                                                          //     "/verify_email",
+                                                          //     arguments:
+                                                          //         "employer");
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (context) => VerifyEmail(email:email.text)),
+                                                          );
                                                         },
                                                         child: Text(
                                                           'Verify',
@@ -255,9 +260,8 @@ class _BasicInfoEmployerState extends State<BasicInfoEmployer>
 
                                                           Navigator.push(
                                                             context,
-                                                            new MaterialPageRoute(
-                                                                builder: (context) => VerifyMobile(phoneNumber:mobile.text)
-                                                            ),
+                                                            MaterialPageRoute(
+                                                                builder: (context) => VerifyMobile(phoneNumber:mobile.text)),
                                                           );
                                                           // Navigator.pushNamed(
                                                           //     context,
@@ -518,8 +522,13 @@ class _BasicInfoEmployerState extends State<BasicInfoEmployer>
                         alignment: FractionalOffset.bottomCenter,
                         child: GestureDetector(
                             onTap: () {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      _register_employer();
+
+    }
                               // Swiping in right direction.
-                              Navigator.pushNamed(context, '/company_profile');
+                              // Navigator.pushNamed(context, '/company_profile');
                             },
                             child: Container(
                                 width: 13.596155166625977,
@@ -542,8 +551,11 @@ class _BasicInfoEmployerState extends State<BasicInfoEmployer>
                         alignment: FractionalOffset.bottomLeft,
                         child: GestureDetector(
                             onTap: () {
-                              _register_employer();
-                                   // Navigator.pushNamed(context, "/company_profile");
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                _register_employer();
+
+                              }                                   // Navigator.pushNamed(context, "/company_profile");
                             },
                             child: Text('Next',
                                 textAlign: TextAlign.right,

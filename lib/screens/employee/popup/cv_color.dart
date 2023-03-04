@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:join_re/screens/employee/popup/cv_template.dart';
 
 class CVColor extends StatefulWidget {
+  final int id;
+  const CVColor({Key? key,  required this.id,}) : super(key: key);
   @override
   _CVColorState createState() => _CVColorState();
 }
 
-enum SingingCharacter { primary, secondary }
+// enum SingingCharacter { primary, secondary }
 
 class _CVColorState extends State<CVColor> {
-  SingingCharacter? _character = SingingCharacter.primary;
+  var _character = "primary";
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,13 @@ class _CVColorState extends State<CVColor> {
               const SizedBox(
                 height: 40,
               ),
-              Row(
+              InkWell(
+                // borderRadius: BorderRadius.circular(15.0),
+                  splashColor: Colors.black12,
+                onTap: (){
+                  _character = "primary";
+                },
+                  child:Row(
                 children: [
                   Container(
                       width: 25.2265625,
@@ -81,11 +89,18 @@ class _CVColorState extends State<CVColor> {
                         height: 1),
                   ),
                 ],
-              ),
+              )),
               const SizedBox(
                 height: 20,
               ),
-              Row(children: [
+            InkWell(
+              // borderRadius: BorderRadius.circular(15.0),
+                splashColor: Colors.black12,
+            // GestureDetector(
+                onTap: (){
+                  _character = "secondary";
+                },
+                child:Row(children: [
                 Container(
                     width: 25.2265625,
                     height: 25.2265625,
@@ -109,17 +124,19 @@ class _CVColorState extends State<CVColor> {
                       fontWeight: FontWeight.bold,
                       height: 1),
                 ),
-              ]),
+              ])),
               const SizedBox(
                 height: 40,
               ),
-              GestureDetector(
+              InkWell(
+                // borderRadius: BorderRadius.circular(15.0),
+                splashColor: Colors.black12,
                 onTap: () async {
                   Navigator.pop(context);
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return CVTemplate();
+                        return CVTemplate(id:widget.id,color:_character);
                       });
                 },
                 child: Container(

@@ -10,7 +10,8 @@ class EmployerHome extends StatefulWidget {
   final login_id;
   final arrData;
   final arrPostedJob;
-  const EmployerHome({Key? key, this.login_id, this.emp_pg, this.arrData,this.arrPostedJob})
+  const EmployerHome(
+      {Key? key, this.login_id, this.emp_pg, this.arrData, this.arrPostedJob})
       : super(key: key);
 
   @override
@@ -29,7 +30,6 @@ var id = TextEditingController();
 class _EmployerHomeState extends State<EmployerHome>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-
   bool _isLoading = false;
   @override
   void initState() {
@@ -39,17 +39,18 @@ class _EmployerHomeState extends State<EmployerHome>
     });
   }
 
-  void showAlertDialog(BuildContext context, String title, String message, int id){
+  void showAlertDialog(
+      BuildContext context, String title, String message, int id) {
     // set up the buttons
     Widget continueButton = ElevatedButton(
       child: const Text("Yes"),
-      onPressed:  () {
+      onPressed: () {
         _delete_posted_job(id);
       },
     );
     Widget cancelButton = ElevatedButton(
       child: const Text("No"),
-      onPressed:  () {
+      onPressed: () {
         Navigator.pop(context);
       },
     );
@@ -71,50 +72,66 @@ class _EmployerHomeState extends State<EmployerHome>
     );
   }
 
-  void _delete_posted_job(id) async{
-  setState(() {
-    _isLoading = true;
-  });
-  var data = {
-    "id":id,
-  };
+  void _delete_posted_job(id) async {
+    setState(() {
+      _isLoading = true;
+    });
+    var data = {
+      "id": id,
+    };
 
-  var res = await Network().authData(data, '/delete_posted_job');
-  var body = json.decode(res.body);
-  print(body);
-  if (body['success']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MainPageEmployer(pg: 1,login:widget.login_id)),
-    );
+    var res = await Network().authData(data, '/delete_posted_job');
+    var body = json.decode(res.body);
+    print(body);
+    if (body['success']) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                MainPageEmployer(pg: 1, login: widget.login_id)),
+      );
+    }
   }
 
-}
-void  get_posted_job(id) async{
-  setState(() {
-    _isLoading = true;
-  });
-  var data = {
-    "id":id,
-  };
+  void get_posted_job(id) async {
+    setState(() {
+      _isLoading = true;
+    });
+    var data = {
+      "id": id,
+    };
 
-  var res = await Network().authData(data, '/get_posted_job');
-  var body = json.decode(res.body);
-  print(body);
-  if (body['success']) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MainPageEmployer(pg: 0,login:widget.login_id)),
-    );
+    var res = await Network().authData(data, '/get_posted_job');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      // setState(() {
+      job_id = body['posted_job_data']['id'];
+      // });
+      print("jobid");
+      print(job_id);
+      job_title.text = body['posted_job_data']['job_title'];
+      skills_needed.text = body['posted_job_data']['skills_needed'];
+      year_of_exp_needed.text = body['posted_job_data']['year_of_exp_needed'];
+      about_the_job.text = body['posted_job_data']['about_the_job'];
+      other_details.text = body['posted_job_data']['other_details'];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MainPageEmployer(
+                  pg: 0,
+                  login: widget.login_id,
+                  arrPostedJob: body['posted_job_data'],
+                )),
+      );
+    }
   }
 
-}
   void _post_job() async {
     setState(() {
       _isLoading = true;
     });
     var data = {
-      // "id":widget.arrData['id'],
+      "id": job_id,
       "user_id": widget.login_id[1],
       "job_title": job_title.text,
       "skills_needed": skills_needed.text,
@@ -127,6 +144,14 @@ void  get_posted_job(id) async{
     var res = await Network().authData(data, '/post_job');
     var body = json.decode(res.body);
     if (body['success']) {
+      setState(() {
+        job_id = 0;
+      });
+      job_title.text = '';
+      skills_needed.text = '';
+      year_of_exp_needed.text = '';
+      about_the_job.text = '';
+      other_details.text = '';
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -145,7 +170,7 @@ void  get_posted_job(id) async{
         body: DefaultTabController(
             initialIndex: selectedPage,
             length: 2,
-            child: Container(
+            // child: Container(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -215,7 +240,6 @@ void  get_posted_job(id) async{
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   TextFormField(
-
                                     // initialValue: '${widget.arrPostedJob['job_title']??''}',
                                     controller: job_title,
                                     validator: (value) {
@@ -329,45 +353,38 @@ void  get_posted_job(id) async{
                                 ])),
                       ],
                     )),
-                    Expanded(
-                        child:  ListView.builder(
-                            // itemCount: models.length,
-                          itemCount: widget.arrData['count']??0,
-                            itemBuilder: (context, index) => Card(
-                                child:  Container(
-                                    padding: EdgeInsets.all(10),
-                                    width: 333,
-                                    height: 99,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(5),
-                                        topRight: Radius.circular(5),
-                                        bottomLeft: Radius.circular(5),
-                                        bottomRight: Radius.circular(5),
-                                      ),
-                                      color: Color.fromRGBO(58, 54, 115, 1),
-                                      border: Border.all(
-                                        color: Color.fromRGBO(58, 54, 115, 1),
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    child: Column(children: [
-                                      Row(children: [
-                                        Expanded(
-                                            child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                                children: [
-                                                  Container(
+                    // Expanded(
+                    //     child:
+                        widget.arrData == null
+                            ? Center(child: CircularProgressIndicator())
+                            : ListView.builder(
+                                // itemCount: models.length,
+                                itemCount: widget.arrData['count'] ?? 0,
+                                itemBuilder: (context, index) => Card(
+                                  color: Color.fromRGBO(58, 54, 115, 1),
+                                    margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                                    child:Column(children: [
+                                          Row(children: [
+                                            SizedBox(width: 10,),
+                                            Expanded(
+                                                child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      SizedBox(height: 10,),
+
+                                                      Container(
                                                       width: 20,
                                                       height: 20,
                                                       decoration: BoxDecoration(
                                                         image: DecorationImage(
                                                             image: const AssetImage(
                                                                 'assets/images/google.png'),
-                                                            fit: BoxFit.fitWidth),
+                                                            fit: BoxFit
+                                                                .fitWidth),
                                                       )),
                                                   SizedBox(
                                                     height: 5,
@@ -376,110 +393,134 @@ void  get_posted_job(id) async{
                                                     '${widget.arrData['posted_jobs'][index]['job_title']}',
                                                     textAlign: TextAlign.left,
                                                     style: TextStyle(
-                                                        color:
-                                                        Color.fromRGBO(255, 255, 255, 1),
+                                                        color: Color.fromRGBO(
+                                                            255, 255, 255, 1),
                                                         fontFamily: 'Roboto',
                                                         fontSize: 12,
                                                         letterSpacing:
-                                                        0 /*percentages not used in flutter. defaulting to zero*/,
-                                                        fontWeight: FontWeight.normal,
+                                                            0 /*percentages not used in flutter. defaulting to zero*/,
+                                                        fontWeight:
+                                                            FontWeight.normal,
                                                         height: 1),
                                                   ),
                                                   SizedBox(
                                                     height: 5,
                                                   ),
                                                   Text(
-                                                    '${widget.arrData['posted_jobs'][index]['skills_needed']??''}',
+                                                    '${widget.arrData['posted_jobs'][index]['skills_needed'] ?? ''}',
                                                     textAlign: TextAlign.left,
                                                     style: TextStyle(
-                                                        color:
-                                                        Color.fromRGBO(255, 255, 255, 1),
+                                                        color: Color.fromRGBO(
+                                                            255, 255, 255, 1),
                                                         fontFamily: 'Roboto',
                                                         fontSize: 8,
                                                         letterSpacing:
-                                                        0 /*percentages not used in flutter. defaulting to zero*/,
-                                                        fontWeight: FontWeight.normal,
+                                                            0 /*percentages not used in flutter. defaulting to zero*/,
+                                                        fontWeight:
+                                                            FontWeight.normal,
                                                         height: 1),
                                                   ),
                                                   SizedBox(
                                                     height: 5,
                                                   ),
                                                   Text(
-                                                    '${widget.arrData['posted_jobs'][index]['about_the_job']??''}',
+                                                    '${widget.arrData['posted_jobs'][index]['about_the_job'] ?? ''}',
                                                     textAlign: TextAlign.left,
                                                     style: TextStyle(
-                                                        color:
-                                                        Color.fromRGBO(255, 255, 255, 1),
+                                                        color: Color.fromRGBO(
+                                                            255, 255, 255, 1),
                                                         fontFamily: 'Roboto',
                                                         fontSize: 6,
                                                         letterSpacing:
-                                                        0 /*percentages not used in flutter. defaulting to zero*/,
-                                                        fontWeight: FontWeight.normal,
+                                                            0 /*percentages not used in flutter. defaulting to zero*/,
+                                                        fontWeight:
+                                                            FontWeight.normal,
                                                         height: 1),
                                                   ),
                                                   SizedBox(
                                                     height: 5,
                                                   ),
-
                                                   Text(
-                                                    '${widget.arrData['posted_jobs'][index]['days']??0} days ago',
+                                                    '${widget.arrData['posted_jobs'][index]['days'] ?? 0} days ago',
                                                     textAlign: TextAlign.left,
                                                     style: TextStyle(
-                                                        color:
-                                                        Color.fromRGBO(255, 255, 255, 1),
+                                                        color: Color.fromRGBO(
+                                                            255, 255, 255, 1),
                                                         fontFamily: 'Roboto',
                                                         fontSize: 8,
                                                         letterSpacing:
-                                                        0 /*percentages not used in flutter. defaulting to zero*/,
-                                                        fontWeight: FontWeight.normal,
+                                                            0 /*percentages not used in flutter. defaulting to zero*/,
+                                                        fontWeight:
+                                                            FontWeight.normal,
                                                         height: 1),
-                                                  )
-                                                ])),
-                                        Expanded(
-                                            child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  GestureDetector(
-                                                      onTap: () {
-                                                        get_posted_job(widget.arrData['posted_jobs'][index]['job_title']);
+                                                  ),
+                                                      SizedBox(height: 10,),
 
+                                                    ])),
+                                            Expanded(
+                                                child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      SizedBox(height: 10,),
+
+                                                      GestureDetector(
+                                                      onTap: () {
+                                                        get_posted_job(widget
+                                                                    .arrData[
+                                                                'posted_jobs']
+                                                            [index]['id']);
                                                       },
                                                       child: Container(
                                                           width: 14,
                                                           height: 14,
-                                                          decoration: BoxDecoration(
+                                                          decoration:
+                                                              BoxDecoration(
                                                             image: DecorationImage(
                                                                 image: AssetImage(
                                                                     'assets/images/Edit_white.png'),
-                                                                fit: BoxFit.fitWidth),
+                                                                fit: BoxFit
+                                                                    .fitWidth),
                                                           ))),
                                                   SizedBox(
                                                     height: 50,
                                                   ),
-                                GestureDetector(
-                                    onTap: () {
-                                      showAlertDialog(context, "Delete Confirmation", "Are you sure to delete?",widget.arrData['posted_jobs'][index]['id']);
-                                      // get_posted_job(widget.arrData['posted_jobs'][index]['job_title']);
+                                                  GestureDetector(
+                                                      onTap: () {
+                                                        showAlertDialog(
+                                                            context,
+                                                            "Delete Confirmation",
+                                                            "Are you sure to delete?",
+                                                            widget.arrData[
+                                                                    'posted_jobs']
+                                                                [index]['id']);
+                                                        // get_posted_job(widget.arrData['posted_jobs'][index]['job_title']);
+                                                      },
+                                                      child: Container(
+                                                          width: 14,
+                                                          height: 14,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            image: DecorationImage(
+                                                                image: AssetImage(
+                                                                    'assets/images/Remove.png'),
+                                                                fit: BoxFit
+                                                                    .fitWidth),
+                                                          ))),
+                                                      SizedBox(height: 10,),
 
-                                    },
-                                    child:
-                                                  Container(
-                                                      width: 14,
-                                                      height: 14,
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                            image: AssetImage(
-                                                                'assets/images/Remove.png'),
-                                                            fit: BoxFit.fitWidth),
-                                                      )))
-                                                ]))
-                                      ])
-                                    ]))
-                            )))
+                                                    ])),
+                                            SizedBox(width: 10,),
+
+                                          ])
+                                        ])
+                                // )
+                        ))
                   ]))
-                ]))));
+                ]))
+    // )
+    );
   }
-
 }

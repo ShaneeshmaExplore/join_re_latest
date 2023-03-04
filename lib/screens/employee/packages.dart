@@ -95,7 +95,9 @@ class _PackagesState extends State<Packages> {
                       gradient: Linear_Gradient),
                   child:
                     Expanded(
-                        child:  ListView.builder(
+                        child: widget.packages == null
+                            ? Center(child: CircularProgressIndicator())
+                            : ListView.builder(
                           // itemCount: models.length,
                           itemCount: widget.packages['count']??0,
                           itemBuilder: (context, index) => Card(

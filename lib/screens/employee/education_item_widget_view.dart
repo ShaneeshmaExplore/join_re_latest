@@ -1,16 +1,28 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:join_re/screens/employee/education.dart';
+import 'package:join_re/screens/employee/preview_page.dart';
+import 'package:join_re/utils/api.dart';
 
-class EducationItemWidget extends StatefulWidget {
-  final index;
-  const EducationItemWidget({Key? key, this.index}) : super(key: key);
+class EducationItemWidgetView extends StatefulWidget {
+  final data;
+  const EducationItemWidgetView({Key? key,this.data }) : super(key: key);
 
   @override
-  State<EducationItemWidget> createState() => _EducationItemWidgetState();
+  State<EducationItemWidgetView> createState() => _EducationItemWidgetViewState();
 }
 
-class _EducationItemWidgetState extends State<EducationItemWidget> {
+var country_list_edu = List<dynamic>.empty();
+var title_of_qfn = TextEditingController();
+var orgnzn = TextEditingController();
+var addr_orgn = TextEditingController();
+var org_pin = TextEditingController();
+var edu_period_from = TextEditingController();
+var edu_period_to = TextEditingController();
+var org_city = TextEditingController();
+
+class _EducationItemWidgetViewState extends State<EducationItemWidgetView> {
   Future<void> _selectDate(BuildContext context) async {
     DateTime now = new DateTime.now();
 
@@ -22,13 +34,35 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+
       });
     }
   }
 
+  Future<String> fetchData() async {
+    var res = await Network().authData('', '/list_company_type');
+    var body = json.decode(res.body);
+    setState(() {
+      country_list_edu = body['country'];
+
+    });
+
+
+    return "Success";
+  }
   @override
   void initState() {
     super.initState();
+    fetchData();
+
+    title_of_qfn.text = widget.data['title_of_qualification'] ?? '';
+    orgnzn.text = widget.data['organization_providing_training'] ?? '';
+    addr_orgn.text = widget.data['edu_address']??'';
+    org_pin.text = widget.data['edu_pin']??'';
+    edu_period_from.text = widget.data['edu_period_from']??'';
+    edu_period_to.text = widget.data['edu_period_to']??'';
+    sel_country = widget.data['edu_country'];
+    // org_city = widget.data['edu_city'];
   }
   @override
   Widget build(BuildContext context) {
@@ -37,12 +71,6 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
         child: Column(
           children: [
             TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Title';
-                }
-                return null;
-              },
               controller:title_of_qfn,
               style: TextStyle(
                   fontSize: 12,
@@ -54,12 +82,6 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
               ),
             ),
             TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Organization name';
-                }
-                return null;
-              },
               controller:orgnzn,
               style: TextStyle(
                   fontSize: 12,
@@ -71,12 +93,6 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
               ),
             ),
             TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter Address';
-                }
-                return null;
-              },
               controller:addr_orgn,
               style: TextStyle(
                   fontSize: 12,
@@ -90,43 +106,31 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
             Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter PIN';
-                      }
-                      return null;
-                    },
-                    controller:org_pin,
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff3A3673),
-                        fontFamily: 'Open Sans'),
-                    decoration: InputDecoration(
-                      labelText: 'Postal Code',
-                    )),
-              )),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 10.0, 0),
+                    child: TextFormField(
+                        controller:org_pin,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff3A3673),
+                            fontFamily: 'Open Sans'),
+                        decoration: InputDecoration(
+                          labelText: 'Postal Code',
+                        )),
+                  )),
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0.0, 0),
-                child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter City';
-                      }
-                      return null;
-                    },
-                    controller:org_city,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff3A3673),
-                        fontFamily: 'Open Sans'),
-                    decoration: InputDecoration(
-                      labelText: 'City',
-                    )),
-              )),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0.0, 0),
+                    child: TextFormField(
+                        controller:org_city,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff3A3673),
+                            fontFamily: 'Open Sans'),
+                        decoration: InputDecoration(
+                          labelText: 'City',
+                        )),
+                  )),
             ]),
             Container(
               margin: EdgeInsets.only(top: 5),
@@ -137,13 +141,7 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
                   labelText: 'Country',
                 ),
 
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please Select Country';
-                  }
-                  return null;
-                },
-                // value: sel_country,
+                value: sel_country,
                 iconEnabledColor: Color(0xff3A3673),
                 style: const TextStyle(
                   color: Color(0xff3A3673),
@@ -155,42 +153,38 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
                   });
                 },
                 items: country_list_edu.map((item) {
-                  return DropdownMenuItem(
+                  return new DropdownMenuItem(
+                    child: new Text(item['country_name']),
                     value: item['id'].toString(),
-                    child: Text(item['country_name']),
                   );
+
                 }).toList(),
+
               ),
             ),
             Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Period from';
-                      }
-                      return null;
-                    },
-                    controller: edu_period_from,
-                    onTap: () async {
-                      // Below line stops keyboard from appearing
-                      FocusScope.of(context).requestFocus(new FocusNode());
-                      // Show Date Picker Here
-                      await _selectDate(context);
-                      edu_period_from.text =
-                          DateFormat('yyyy/MM/dd').format(selectedDate);
-                    },
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xff3A3673),
-                        fontFamily: 'Open Sans'),
-                    decoration: InputDecoration(
-                      // border: Outline(),
-                      labelText: 'From',
-                    )),
-              )),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: TextFormField(
+                        controller: edu_period_from,
+                        onTap: () async {
+                          // Below line stops keyboard from appearing
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                          // Show Date Picker Here
+                          await _selectDate(context);
+                          edu_period_from.text =
+                              DateFormat('yyyy/MM/dd').format(selectedDate);
+                        },
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: Color(0xff3A3673),
+                            fontFamily: 'Open Sans'),
+                        decoration: InputDecoration(
+                          // border: Outline(),
+                          labelText: 'From',
+                        )),
+                  )),
               GestureDetector(
                   onTap: () async {
                     // Below line stops keyboard from appearing
@@ -210,32 +204,26 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
                       ))),
               Expanded(
                   child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Period To ';
-                      }
-                      return null;
-                    },
-                    controller: edu_period_to,
-                    onTap: () async {
-                      // Below line stops keyboard from appearing
-                      FocusScope.of(context).requestFocus(new FocusNode());
-                      // Show Date Picker Here
-                      await _selectDate(context);
-                      edu_period_to.text =
-                          DateFormat('yyyy/MM/dd').format(selectedDate);
-                    },
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xff3A3673),
-                        fontFamily: 'Open Sans'),
-                    decoration: InputDecoration(
-                      // border: Outline(),
-                      labelText: 'To',
-                    )),
-              )),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: TextFormField(
+                        controller: edu_period_to,
+                        onTap: () async {
+                          // Below line stops keyboard from appearing
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                          // Show Date Picker Here
+                          await _selectDate(context);
+                          edu_period_to.text =
+                              DateFormat('yyyy/MM/dd').format(selectedDate);
+                        },
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: Color(0xff3A3673),
+                            fontFamily: 'Open Sans'),
+                        decoration: InputDecoration(
+                          // border: Outline(),
+                          labelText: 'To',
+                        )),
+                  )),
               GestureDetector(
                   onTap: () async {
                     // Below line stops keyboard from appearing
@@ -263,7 +251,7 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
                               fontFamily: 'Open Sans',
                               fontSize: 10,
                               letterSpacing:
-                                  0 /*percentages not used in flutter. defaulting to zero*/,
+                              0 /*percentages not used in flutter. defaulting to zero*/,
                               fontWeight: FontWeight.normal,
                               height: 1)),
                       horizontalTitleGap: 1,
@@ -290,7 +278,7 @@ class _EducationItemWidgetState extends State<EducationItemWidget> {
                             fontFamily: 'Open Sans',
                             fontSize: 10,
                             letterSpacing:
-                                0 /*percentages not used in flutter. defaulting to zero*/,
+                            0 /*percentages not used in flutter. defaulting to zero*/,
                             fontWeight: FontWeight.normal,
                             height: 1),
                       ),

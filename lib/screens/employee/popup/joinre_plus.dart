@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:join_re/screens/main_page.dart';
 
 class JoinRePlus extends StatefulWidget {
+
+  final int id;
+  final String color;
+  final String template;
+
+  const JoinRePlus({Key? key,  required this.id,required this.color,required this.template}) : super(key: key);
   @override
   _JoinRePlusState createState() => _JoinRePlusState();
 }

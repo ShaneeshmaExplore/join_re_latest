@@ -6,18 +6,14 @@ import 'package:join_re/screens/employee/popup/add_photo.dart';
 import 'package:join_re/screens/employee/popup/add_video.dart';
 import 'package:join_re/screens/employee/popup/change_password.dart';
 import 'package:join_re/screens/employee/popup/cv_color.dart';
-import 'package:join_re/screens/employee/view_profile.dart';
 import 'package:join_re/screens/main_page.dart';
-import 'package:join_re/utils/api.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/constants/colors.dart';
 
 class EmployeeHome extends StatefulWidget {
   final String name;
   final int id;
 const EmployeeHome({Key? key, required this.name, required this.id,}) : super(key: key);
-// const EmployeeHome({super.key});
 
   @override
   State<EmployeeHome> createState() => _EmployeeHomeState();
@@ -53,7 +49,9 @@ class _EmployeeHomeState extends State<EmployeeHome> {
 
     return  SingleChildScrollView(
         physics: NeverScrollableScrollPhysics(),
-        child:Container(
+        child:widget.name == null
+            ? Center(child: CircularProgressIndicator())
+            :Container(
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               color: Color.fromRGBO(255, 255, 255, 1),
@@ -181,8 +179,9 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                         ),
 
                         Row(children: [
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child: /*view profile*/
+                        Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.white,
@@ -235,13 +234,14 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                       ]),
                                 ),
                               ),
-                            ),
+                            // ),
                           )),
                           const SizedBox(
                             width: 10,
                           ),
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child:
+                              /*view profile*/ Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: Colors.white,
@@ -255,7 +255,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                           showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
-                                                return AddPhoto();
+                                                return AddPhoto(id:widget.id);
                                               });
                                         },
                                         child: SizedBox(
@@ -320,15 +320,16 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                                   )
                                                 ]),
                                           ),
-                                        ),
+                                        // ),
                                       )))),
                         ]),
                         const SizedBox(
                           height: 20,
                         ),
                         Row(children: [
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child:
+                              /*view profile*/ Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: Colors.white,
@@ -343,7 +344,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                           showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
-                                                return AddVideo();
+                                                return AddVideo(id:widget.id);
                                               });
                                         },
                                         child: SizedBox(
@@ -408,13 +409,14 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                                   )
                                                 ]),
                                           ),
-                                        ),
+                                        // ),
                                       )))),
                           const SizedBox(
                             width: 10,
                           ),
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child:
+                              /*view profile*/ Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: Colors.white,
@@ -494,15 +496,16 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                                   )
                                                 ]),
                                           ),
-                                        ),
+                                        // ),
                                       )))),
                         ]),
                         const SizedBox(
                           height: 20,
                         ),
                         Row(children: [
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child:
+                              /*view profile*/ Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: Colors.white,
@@ -516,7 +519,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                           showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
-                                                return CVColor();
+                                                return CVColor(id:widget.id);
                                               });
                                         },
                                         child: SizedBox(
@@ -581,13 +584,14 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                                   )
                                                 ]),
                                           ),
-                                        ),
+                                        // ),
                                       )))),
                           const SizedBox(
                             width: 10,
                           ),
-                          Expanded(
-                              child: /*view profile*/ Container(
+                          // Expanded(
+                          //     child:
+                              /*view profile*/ Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
                                     color: Colors.white,
@@ -667,7 +671,7 @@ class _EmployeeHomeState extends State<EmployeeHome> {
                                                   )
                                                 ]),
                                           ),
-                                        ),
+                                        // ),
                                       )))),
                         ]),
                         const SizedBox(

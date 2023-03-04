@@ -1,21 +1,41 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:join_re/screens/company/basic_info_employer.dart';
 
 import 'package:join_re/screens/employee/basic_info.dart';
+import 'package:join_re/screens/main_page_employer.dart';
+import 'package:join_re/utils/api.dart';
 
 class CompleteInfo extends StatefulWidget {
-  const CompleteInfo({super.key});
+  final data;
+  const CompleteInfo({Key? key,this.data}) : super(key: key);
 
   @override
   _CompleteInfoState createState() => _CompleteInfoState();
 }
 
-const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
-const List<String> company_list = <String>['One', 'Two', 'Three', 'Four'];
-String dropdownValue = list.first;
-String company_list_dropdownValue = company_list.first;
+String? selectedCountry;
+String? company_list_dropdownValue;
+var company_list = List<dynamic>.empty();
+var country_list = List<dynamic>.empty();
+
+TextEditingController tag_line = TextEditingController();
+TextEditingController company_website = TextEditingController();
+TextEditingController industry_name = TextEditingController();
+TextEditingController company_mail = TextEditingController();
+TextEditingController company_description = TextEditingController();
+TextEditingController company_head_quarters = TextEditingController();
+TextEditingController company_address = TextEditingController();
+TextEditingController city = TextEditingController();
+TextEditingController pin = TextEditingController();
+
+TextEditingController business_name = TextEditingController();
+TextEditingController mobile = TextEditingController();
+TextEditingController email = TextEditingController();
+TextEditingController contact_person = TextEditingController();
 
 class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
   final formGlobalKey = GlobalKey<FormState>();
@@ -33,10 +53,69 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
     });
   }
 
+  void _register_employer()async{
+    // setState(() {
+    //   _isLoading = true;
+    // });
+    var data = {
+      "tag_line" : tag_line.text,
+      "type" : "Provider",
+      "company_website" : company_website.text,
+      "industry_name" : industry_name.text,
+      "company_mail" : company_mail.text,
+      "company_type" : company_list_dropdownValue,
+      "company_description" : company_description.text,
+      "company_head_quarters" : company_head_quarters.text,
+      "company_address" : company_address.text,
+      "city" : city.text,
+      "pin" : pin.text,
+
+      "api":true,
+      "status" :"Active",
+      "business_name" :business_name.text,
+      "type" : "Provider",
+      "mobile" : mobile.text,
+      "email" : email.text,
+      "password" : password.text,
+      "contact_person" : contact_person.text,
+      "country_id":selectedCountry
+    };
+    // data.addAll(widget.data);
+
+    var res = await Network().authData(data, '/save_job_provider');
+    var body = json.decode(res.body);
+    if(body['success']){
+print("************");
+      List<dynamic> items = [body['user'],body['id']];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MainPageEmployer(pg:0,login:items,
+          ),),);
+    }
+
+    // setState(() {
+    //   _isLoading = false;
+    // });
+  }
+  Future<String> fetchData() async {
+    var res = await Network().authData('', '/list_company_type');
+    var body = json.decode(res.body);
+    setState(() {
+      company_list = body['list'];
+      country_list = body['country'];
+
+    });
+
+
+    return "Success";
+  }
+
   @override
   void initState() {
     super.initState();
     captcha.text = getRandomString(5);
+    fetchData();
   }
   static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   Random _rnd = Random();
@@ -47,6 +126,22 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
 
   @override
   Widget build(BuildContext context) {
+    business_name.text = widget.data['business_name'];
+    email.text = widget.data['email'];
+    mobile.text = widget.data['mobile'];
+    contact_person.text = widget.data['contact_person'];
+    password.text = widget.data['password'];
+    tag_line.text = widget.data['tag_line'];
+    company_website.text = widget.data['company_website'];
+    industry_name.text = widget.data['industry_name'];
+    company_mail.text = widget.data['company_mail'];
+    company_description.text = widget.data['company_description'];
+    company_head_quarters.text = widget.data['company_head_quarters'];
+    company_address.text = widget.data['company_address'];
+    pin.text = widget.data['pin'];
+    city.text = widget.data['city'];
+    selectedCountry = widget.data['country_id'];
+    company_list_dropdownValue = widget.data['company_type'];
     return Scaffold(
       resizeToAvoidBottomInset: true,
       // bottomNavigationBar: EmployeeRegFooter(),
@@ -55,13 +150,25 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
           child: GestureDetector(
               onHorizontalDragUpdate: (details) {
                 // Swiping in right direction.
-                if (details.delta.dx > 0) {
-                  Navigator.pushReplacementNamed(context, '/company_profile');
-                }
+                // if (details.delta.dx > 0) {
+                //   Navigator.pushReplacementNamed(context, '/company_profile');
+                // }
               },
               child: SingleChildScrollView(
                   child: Column(children: [
                 Stack(children: [
+                  Positioned(
+                      top: 450,
+                      left: -200,
+                      child: Container(
+                          width: 735.9408569335938,
+                          height: 735.9408569335938,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(
+                                57, 54, 115, 0.07999999821186066),
+                            borderRadius: BorderRadius.all(Radius.elliptical(
+                                735.9408569335938, 735.9408569335938)),
+                          ))),
                   Container(
                     // height: MediaQuery.of(context).size.height,
                     height: 1210,
@@ -94,6 +201,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               height: 30,
                             ),
                             TextFormField(
+                              controller:business_name,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xff3A3673),
@@ -106,6 +214,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
 
                                 Stack(children: <Widget>[
                                   TextFormField(
+                                    controller:email,
                                     validator: (value) {
                                       if (value == null ||
                                           value.isEmpty) {
@@ -161,6 +270,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                 ]),
                                 Stack(children: <Widget>[
                                   TextFormField(
+                                    controller:mobile,
                                     validator: (value) {
                                       if (value == null ||
                                           value.isEmpty) {
@@ -217,6 +327,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                           )))
                                 ]),
                             TextFormField(
+                              controller:contact_person,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xff3A3673),
@@ -301,6 +412,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               onChanged: ((value) {
                                 print(value);
                               }),
+                              controller:password,
                               obscureText: true,
                               style: TextStyle(
                                   fontSize: 12,
@@ -310,19 +422,19 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                 labelText: 'Password',
                               ),
                             ),
-                            TextFormField(
-                              onChanged: ((value) {
-                                print(value);
-                              }),
-                              obscureText: true,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xff3A3673),
-                                  fontFamily: 'Open Sans'),
-                              decoration: InputDecoration(
-                                labelText: 'Confirm Password',
-                              ),
-                            ),
+                            // TextFormField(
+                            //   onChanged: ((value) {
+                            //     print(value);
+                            //   }),
+                            //   obscureText: true,
+                            //   style: TextStyle(
+                            //       fontSize: 12,
+                            //       color: Color(0xff3A3673),
+                            //       fontFamily: 'Open Sans'),
+                            //   decoration: InputDecoration(
+                            //     labelText: 'Confirm Password',
+                            //   ),
+                            // ),
                             SizedBox(
                               height: 30,
                             ),
@@ -337,6 +449,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                             ),
                             Column(mainAxisSize: MainAxisSize.min, children: [
                               TextFormField(
+                                controller:tag_line,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xff3A3673),
@@ -347,6 +460,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                 ),
                               ),
                               TextFormField(
+                                controller:company_website,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xff3A3673),
@@ -357,6 +471,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                 ),
                               ),
                               TextFormField(
+                                controller:industry_name,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xff3A3673),
@@ -367,6 +482,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                 ),
                               ),
                               TextFormField(
+                                controller:company_mail,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xff3A3673),
@@ -394,15 +510,15 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                   company_list_dropdownValue = value!;
                                 });
                               },
-                              items: company_list.map<DropdownMenuItem<String>>(
-                                  (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
+                              items: company_list.map((item) {
+                              return new DropdownMenuItem(
+                              child: new Text(item['comp_type_name']),
+                              value: item['id'].toString(),
+                              );
                               }).toList(),
                             ),
                             TextFormField(
+                              controller:company_description,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xff3A3673),
@@ -413,6 +529,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               ),
                             ),
                             TextFormField(
+                              controller:company_head_quarters,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xff3A3673),
@@ -423,6 +540,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               ),
                             ),
                             TextFormField(
+                              controller:company_address,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xff3A3673),
@@ -440,6 +558,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                     padding: const EdgeInsets.fromLTRB(
                                         0, 0, 10.0, 0),
                                     child: TextFormField(
+                                      controller:pin,
                                         keyboardType: TextInputType.number,
                                         style: TextStyle(
                                             fontSize: 12,
@@ -454,6 +573,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 0, 0.0, 0),
                                     child: TextFormField(
+                                        controller:city,
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: Color(0xff3A3673),
@@ -467,7 +587,7 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               decoration: InputDecoration(
                                 labelText: 'Country',
                               ),
-                              value: dropdownValue,
+                              value: selectedCountry,
                               icon: const Icon(Icons.arrow_drop_down_sharp),
                               elevation: 0,
                               style: const TextStyle(
@@ -477,14 +597,13 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                               onChanged: (String? value) {
                                 // This is called when the user selects an item.
                                 setState(() {
-                                  dropdownValue = value!;
+                                  selectedCountry = value!;
                                 });
                               },
-                              items: list.map<DropdownMenuItem<String>>(
-                                  (String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                              items: country_list.map((item) {
+                                return new DropdownMenuItem(
+                                  child: new Text(item['country_name']),
+                                  value: item['id'].toString(),
                                 );
                               }).toList(),
                             ),
@@ -498,27 +617,13 @@ class _CompleteInfoState extends State<CompleteInfo> with InputValidationMixin {
                                         backgroundColor:
                                             Color.fromRGBO(58, 54, 115, 1)),
                                     onPressed: () {
-                                      // if (formGlobalKey.currentState.validate()) {
-                                      //   formGlobalKey.currentState.save();
-                                      //   // use the email provided here
-                                      // }
+                                      _register_employer();
                                       Navigator.pushReplacementNamed(
                                           context, "/employer_home");
                                     },
                                     child: Text("Submit")))
                           ]))),
-                  Positioned(
-                      top: 450,
-                      left: -200,
-                      child: Container(
-                          width: 735.9408569335938,
-                          height: 735.9408569335938,
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(
-                                57, 54, 115, 0.07999999821186066),
-                            borderRadius: BorderRadius.all(Radius.elliptical(
-                                735.9408569335938, 735.9408569335938)),
-                          )))
+
                 ]),
               ])))),
     );

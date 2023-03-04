@@ -19,6 +19,7 @@ class MainPageEmployer extends StatefulWidget {
 }
 var currentIndex;
 bool _searchBoolean = false;
+int job_id = 0;
 var arrData;
 class _MainPageEmployerState extends State<MainPageEmployer> {
   final GlobalKey<ScaffoldState> _scaffoldKey =
@@ -28,7 +29,7 @@ class _MainPageEmployerState extends State<MainPageEmployer> {
     super.initState();
     setState(() {
       currentIndex =widget.pg;
-    }); 
+    });
       onLoad();
   }
   Future onLoad() async{
@@ -46,6 +47,10 @@ class _MainPageEmployerState extends State<MainPageEmployer> {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.remove('user');
       localStorage.remove('token');
+      Navigator.popUntil(
+        context,
+        ModalRoute.withName('/'),
+      );
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context)=>Options()));
@@ -82,8 +87,9 @@ class _MainPageEmployerState extends State<MainPageEmployer> {
           children: <Widget>[
 
 
-            EmployerHome(emp_pg:0,login_id:widget.login,arrData:arrData),
-            EmployerHome(emp_pg:1,login_id:widget.login,arrData:arrData),
+            EmployerHome(emp_pg:0,login_id:widget.login,arrData:arrData,arrPostedJob:widget.arrPostedJob,),
+            EmployerHome(emp_pg:1,login_id:widget.login,arrData:arrData,),
+
             // ConversationPage(),
             // ConversationPage(),
             // ViewProfile(),
@@ -94,6 +100,10 @@ class _MainPageEmployerState extends State<MainPageEmployer> {
       );
   @override
   Widget build(BuildContext context) {
+
+    var now = DateTime.now();
+    var formatter = DateFormat('yyyy-MM-dd H:mm:ss');
+    var formattedDate = formatter.format(now);
     return Scaffold(
         body: _body(),
         key: _scaffoldKey,
@@ -276,10 +286,7 @@ class _MainPageEmployerState extends State<MainPageEmployer> {
                       alignment: FractionalOffset.bottomCenter,
                       child: ListTile(
                         title: Text(
-                            DateFormat('dd-mm-yyyy h:mm a')
-
-                                // displaying formatted date
-                                .format(DateTime.now()),
+                            formattedDate,
                             style: TextStyle(fontSize: 10,
 
                             color: Color.fromRGBO(58, 54, 115, 1))),

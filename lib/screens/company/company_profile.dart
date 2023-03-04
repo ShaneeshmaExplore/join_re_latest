@@ -15,16 +15,16 @@ class CompanyProfile extends StatefulWidget {
   _CompanyProfileState createState() => _CompanyProfileState();
 }
 
-const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
-const List<String> companyList = <String>['One', 'Two', 'Three', 'Four'];
-String dropdownValue = list.first;
-String company_list_dropdownValue = companyList.first;
+String? selectedCountry;
+String? company_list_dropdownValue;
+var company_list = List<dynamic>.empty();
+var country_list = List<dynamic>.empty();
 
 TextEditingController tag_line = TextEditingController();
 TextEditingController company_website = TextEditingController();
 TextEditingController industry_name = TextEditingController();
 TextEditingController company_mail = TextEditingController();
-TextEditingController company_type = TextEditingController();
+// TextEditingController company_type = TextEditingController();
 TextEditingController company_description = TextEditingController();
 TextEditingController company_head_quarters = TextEditingController();
 TextEditingController company_address = TextEditingController();
@@ -35,7 +35,9 @@ TextEditingController pin = TextEditingController();
 @override
 class _CompanyProfileState extends State<CompanyProfile>
     with InputValidationMixin {
-  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+
+bool _isLoading = false;
 
   void _register_employer()async{
     setState(() {
@@ -47,15 +49,24 @@ class _CompanyProfileState extends State<CompanyProfile>
       "company_website" : company_website.text,
       "industry_name" : industry_name.text,
       "company_mail" : company_mail.text,
-      "company_type" : company_type.text,
+      "company_type" : company_list_dropdownValue,
       "company_description" : company_description.text,
       "company_head_quarters" : company_head_quarters.text,
       "company_address" : company_address.text,
       "city" : city.text,
       "pin" : pin.text,
 
+      "api":true,
+      "status" :"Active",
+      "business_name" : widget.data['name'],
+      "type" : "Provider",
+      "mobile" : widget.data['mobile'],
+      "email" :widget.data['email'],
+      "password" : widget.data['password'],
+      "contact_person" : widget.data['contact_person'],
+      "country_id":selectedCountry
     };
-    data.addAll(widget.data);
+    // data.addAll(widget.data);
 
     var res = await Network().authData(data, '/save_job_provider');
     var body = json.decode(res.body);
@@ -64,7 +75,7 @@ class _CompanyProfileState extends State<CompanyProfile>
       company_website.text = "";
       industry_name.text = "";
       company_mail.text = "";
-      company_type.text = "";
+      // company_type.text = "";
       company_description.text = "";
       company_head_quarters.text = "";
       company_address.text = "";
@@ -73,7 +84,7 @@ class _CompanyProfileState extends State<CompanyProfile>
       Navigator.push(
         context,
         new MaterialPageRoute(
-            builder: (context) => ProfileUpdatedEmployer()
+            builder: (context) => ProfileUpdatedEmployer(data:data)
         ),
       );
     }
@@ -82,10 +93,28 @@ class _CompanyProfileState extends State<CompanyProfile>
       _isLoading = false;
     });
   }
+  Future<String> fetchData() async {
+    var res = await Network().authData('', '/list_company_type');
+    var body = json.decode(res.body);
+    setState(() {
+      company_list = body['list'];
+      country_list = body['country'];
+    });
+    return "Success";
+  }
+
 
   @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Form(
+        key: _formKey,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
+        child:Scaffold(
       resizeToAvoidBottomInset: true,
       body: Center(
           child: GestureDetector(
@@ -103,6 +132,20 @@ class _CompanyProfileState extends State<CompanyProfile>
                         itemCount: 1,
                         itemBuilder: (context, index) {
                           return Stack(children: [
+                            Positioned(
+                              top: 30,
+                              left: 110,
+                              child: Container(
+                                  alignment: Alignment.topRight,
+                                  width: 220,
+                                  height: 220,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(
+                                        57, 54, 115, 0.07999999821186066),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.elliptical(237.75, 237.75)),
+                                  )),
+                            ),
                             Container(
                               // height: MediaQuery.of(context).size.height,
                               constraints: BoxConstraints(
@@ -143,6 +186,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   TextFormField(
+                                                    validator: (value) {
+                                                      if (value == null || value.isEmpty) {
+                                                        return 'Please enter Tagline';
+                                                      }
+
+                                                      return null;
+                                                    },
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         color:
@@ -171,6 +221,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                     ),
                                                   ),
                                                   TextFormField(
+                                                    validator: (value) {
+                                                      if (value == null || value.isEmpty) {
+                                                        return 'Please enter Industry Name';
+                                                      }
+
+                                                      return null;
+                                                    },
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         color:
@@ -185,6 +242,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                     ),
                                                   ),
                                                   TextFormField(
+                                                    validator: (value) {
+                                                      if (value == null || value.isEmpty) {
+                                                        return 'Please enter Company Mail';
+                                                      }
+
+                                                      return null;
+                                                    },
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         color:
@@ -218,12 +282,10 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                     value!;
                                               });
                                             },
-                                            items: companyList
-                                                .map<DropdownMenuItem<String>>(
-                                                    (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
+                                            items: company_list.map((item) {
+                                              return new DropdownMenuItem(
+                                                child: new Text(item['comp_type_name']),
+                                                value: item['id'].toString(),
                                               );
                                             }).toList(),
                                           ),
@@ -253,6 +315,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                             ),
                                           ),
                                           TextFormField(
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return 'Please enter Address';
+                                              }
+
+                                              return null;
+                                            },
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: Color(0xff3A3673),
@@ -312,7 +381,7 @@ class _CompanyProfileState extends State<CompanyProfile>
                                             decoration: InputDecoration(
                                               labelText: 'Country',
                                             ),
-                                            value: dropdownValue,
+                                            value: selectedCountry,
                                             icon: const Icon(
                                                 Icons.arrow_drop_down_sharp),
                                             elevation: 0,
@@ -323,15 +392,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                             onChanged: (String? value) {
                                               // This is called when the user selects an item.
                                               setState(() {
-                                                dropdownValue = value!;
+                                                selectedCountry = value!;
                                               });
                                             },
-                                            items: list
-                                                .map<DropdownMenuItem<String>>(
-                                                    (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
+                                            items: country_list.map((item) {
+                                              return new DropdownMenuItem(
+                                                child: new Text(item['country_name']),
+                                                value: item['id'].toString(),
                                               );
                                             }).toList(),
                                           ),
@@ -350,7 +417,13 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                     // setState(() {
                                                     //   sending = true;
                                                     // });
-                                                    _register_employer();                                                  },
+                                                    if (_formKey.currentState!.validate()) {
+                                                      _formKey.currentState!.save();
+                                                      _register_employer();
+
+                                                    }
+                                                    // _register_employer();
+                                                    },
                                                   child: Text(
                                                     "Save",
                                                     //if sending == true then show "Sending" else show "SEND DATA";
@@ -366,20 +439,6 @@ class _CompanyProfileState extends State<CompanyProfile>
                                                   // },
                                                   ))
                                         ]))),
-                            Positioned(
-                              top: 30,
-                              left: 110,
-                              child: Container(
-                                  alignment: Alignment.topRight,
-                                  width: 220,
-                                  height: 220,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(
-                                        57, 54, 115, 0.07999999821186066),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.elliptical(237.75, 237.75)),
-                                  )),
-                            )
                           ]);
                         })),
                 Container(
@@ -456,6 +515,6 @@ class _CompanyProfileState extends State<CompanyProfile>
                       ),
                     ])),
               ]))),
-    );
+    ));
   }
 }

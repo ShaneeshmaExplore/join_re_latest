@@ -1,17 +1,14 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:join_re/screens/company/complete_info.dart';
+import 'package:join_re/screens/employee/basic_info.dart';
+import 'package:join_re/screens/employee/basic_info_widget.dart';
 
-class ProfileUpdatedEmployer extends StatefulWidget {
-
-  final data;
-  const ProfileUpdatedEmployer({Key? key,this.data}) : super(key: key);
+class MobileSuccess extends StatefulWidget {
   @override
-  _ProfileUpdatedEmployerState createState() => _ProfileUpdatedEmployerState();
+  _MobileSuccessState createState() => _MobileSuccessState();
 }
 
-class _ProfileUpdatedEmployerState extends State<ProfileUpdatedEmployer> {
+class _MobileSuccessState extends State<MobileSuccess> {
   @override
   void initState() {
     // TODO: implement initState
@@ -26,26 +23,23 @@ class _ProfileUpdatedEmployerState extends State<ProfileUpdatedEmployer> {
 
   route() {
     Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) => CompleteInfo(data: widget.data)
-    )
+        builder: (context) => BasicInfo(mobile_verified:true)
+      )
     );
   }
 
   Widget build(BuildContext context) {
-    // Figma Flutter Generator ConfirmetionpageWidget - FRAME
+    // Figma Flutter Generator EmailSuccess - FRAME
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
         body: Container(
-          alignment: Alignment.center,
             width: MediaQuery.of(context).size.width,
+            height: double.infinity,
             decoration: BoxDecoration(
               color: Color.fromRGBO(255, 255, 255, 1),
             ),
-            child: Stack(
-
-                alignment: Alignment.center,
-                children: <Widget>[
+            child: Stack(children: <Widget>[
               Positioned(top: 350,
                 left: 59,
                 child:
@@ -74,12 +68,9 @@ class _ProfileUpdatedEmployerState extends State<ProfileUpdatedEmployer> {
                       width: 2,
                     ),
                   )),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+              Column(children: [
                 SizedBox(
-                  height: 80,
+                  height: 50,
                 ),
                 Container(
                     width: 138,
@@ -91,7 +82,7 @@ class _ProfileUpdatedEmployerState extends State<ProfileUpdatedEmployer> {
                           fit: BoxFit.fitWidth),
                     )),
                 Text(
-                  ' Profile Updated',
+                  'Successfully \nVerified',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Color.fromRGBO(58, 54, 115, 1),
@@ -102,18 +93,16 @@ class _ProfileUpdatedEmployerState extends State<ProfileUpdatedEmployer> {
                       fontWeight: FontWeight.bold,
                       height: 1),
                 ),
-                    SizedBox(
-                      height: 100,
-                    ),
                 Container(
-                    width: 256,
-                    height: 256,
+                    width: 525,
+                    height: 481,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: AssetImage('assets/images/profile_updated.png'),
+                          image: AssetImage('assets/images/boy.png'),
                           fit: BoxFit.fitWidth),
                     )),
               ])
             ])));
+
   }
 }

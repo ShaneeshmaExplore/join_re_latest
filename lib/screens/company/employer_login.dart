@@ -12,19 +12,13 @@ class EmployerLogin extends StatefulWidget {
   _EmployerLoginState createState() => _EmployerLoginState();
 }
 
-_showMsg(msg) {
-  final snackBar = SnackBar(
-    content: Text(msg),
-    action: SnackBarAction(
-      label: 'Close',
-      onPressed: () {
-        // Some code to undo the change!
-      },
+void _showMsg(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Invalid Credentials'),
     ),
   );
-  // _scaffoldKey.currentState.showSnackBar(snackBar);
-}
-class _EmployerLoginState extends State<EmployerLogin> {
+}class _EmployerLoginState extends State<EmployerLogin> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -36,7 +30,7 @@ class _EmployerLoginState extends State<EmployerLogin> {
 
     return Form(
         key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Scaffold(
             resizeToAvoidBottomInset: true,
             // appBar: Header(),
@@ -262,7 +256,7 @@ class _EmployerLoginState extends State<EmployerLogin> {
           builder: (_) => MainPageEmployer(pg:0,login:items,
           ),),);
     }else{
-      _showMsg(body['message']);
+      _showMsg(context);
     }
 
     setState(() {

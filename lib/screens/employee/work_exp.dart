@@ -13,106 +13,114 @@ import 'package:join_re/widgets/profile_updated.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkExp extends StatefulWidget {
-
-  final data;
-  const WorkExp({Key? key, this.data}) : super(key: key);
+final data;
+  const WorkExp({Key? key,this.data}) : super(key: key);
   @override
   _WorkExpState createState() => _WorkExpState();
 }
 
+var emp_address= TextEditingController();
+var emp_pin= TextEditingController();
+var emp_city= TextEditingController();
+var exp_country_id= TextEditingController();
+var occupation= TextEditingController();
+var employer= TextEditingController();
+var emp_from= TextEditingController();
+var emp_to= TextEditingController();
+var reponsibility= TextEditingController();
+
+var country_list = List<dynamic>.empty();
+String emp_country = "India";
 class _WorkExpState extends State<WorkExp> with InputValidationMixin {
   List<Widget> _cardList =[];
       bool _isLoading = false;
   void _addCardWidget() {
     setState(() {
-      _cardList.add(WorkExpItemWidget(data:widget.data));
+      _cardList.add(WorkExpItemWidget());
     });
   }
 
+  Future<String> fetchData() async {
+    var res = await Network().authData('', '/list_company_type');
+    var body = json.decode(res.body);
+    setState(() {
+      country_list = body['country'];
+
+    });
+    return "Success";
+  }
   void _register()async{
     setState(() {
       _isLoading = true;
     });
-    var name;
-    var gender;
-    var dob;
-    var mobile;
-    var email;
-    var password;
-    var status;
-    var org_address;
-    var org_pin;
-    var org_city;
-    var edu_country_id;
-    var qualification;
-    var organization;
-    var edu_from;
-    var edu_to;
-    var edu_status;
-    var emp_address;
-    var emp_pin;
-    var emp_city;
-    var exp_country_id;
-    var occupation;
-    var employer;
-    var emp_from;
-    var emp_to;
-    var reponsibility;
-    var id;
     var data = {
-      "api":true,
-      "id":widget.data['id'],
-      "name" : name,
-      "type" : "Seeker",
-      "gender" : gender,
-      "dob" : dob,
-      "mobile" : mobile,
-      "email" : email,
-      "password" : password,
-      "status" : status,
+      "api":"true",
+      "name" : widget.data['name'],
+      "type" : widget.data['type'],
+      "gender" : widget.data['gender'],
+      "dob" : widget.data['dob'],
+      "mobile" : widget.data['mobile'],
+      "email" : widget.data['email'],
+      "password" :widget.data['password'],
+      "status" : widget.data['status'],
+      "mobile_verified":widget.data['mobile_verified'],
+      "email_verified":widget.data['email_verified'],
 
-      "org_address" : org_address,
-      "org_pin" : org_pin,
-      "org_city" : org_city,
-      "edu_country_id" : edu_country_id,
+      "org_address" : widget.data['org_address'],
+      "org_pin" : widget.data['org_pin'],
+      "org_city" : widget.data['org_city'],
+      "edu_country_id" : widget.data['edu_country_id'],
 
-      "qualification" : qualification,
-      "organization" : organization,
-      "edu_from" : edu_from,
-      "edu_to" : edu_to,
-      "edu_status" : edu_status,
+      "qualification" : widget.data['qualification'],
+      "organization" : widget.data['organization'],
+      "edu_from" : widget.data['edu_from'],
+      "edu_to" : widget.data['edu_to'],
+      "edu_status" : widget.data['edu_status'],
 
-      "emp_address" : emp_address,
-      "emp_pin" : emp_pin,
-      "emp_city" : emp_city,
-      "exp_country_id" : exp_country_id,
+      "emp_address" : emp_address.text,
+      "emp_pin" : emp_pin.text,
+      "emp_city" : emp_city.text,
+      "exp_country_id" : emp_country,
 
-      "occupation" : occupation,
-      "employer" : employer,
-      "emp_from" : emp_from,
-      "emp_to" : emp_to,
-      "reponsibility" : reponsibility,
+      "occupation" : occupation.text,
+      "employer" : employer.text,
+      "emp_from" : emp_from.text,
+      "emp_to" : emp_to.text,
+      "reponsibility" : reponsibility.text,
 
     };
-
-    var res = await Network().authData(data, '/save_job_seeker');
-    var body = json.decode(res.body);
-    if(body['success']){
-      Navigator.push(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => ProfileUpdated()
+    if(widget.data['mobile_verified']==true || widget.data['email_verified'] ==true) {
+      var res = await Network().authData(data, '/save_job_seeker');
+      var body = json.decode(res.body);
+      if (body['success']) {
+        Navigator.push(
+          context,
+          new MaterialPageRoute(
+              builder: (context) => ProfileUpdated(data: data)
+          ),
+        );
+      }
+    }
+    else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please verify email and mobile'),
         ),
       );
     }
-
     setState(() {
       _isLoading = false;
     });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
   @override
   Widget build(BuildContext context) {
-    _cardList = [WorkExpItemWidget(data:widget.data)];
+    _cardList = [WorkExpItemWidget()];
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -121,12 +129,8 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
               onPanUpdate: (details) {
                 // Swiping in right direction.
                 if (details.delta.dx > 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => Education(data:widget.data,
-                      ),),);
-                  // Navigator.pushReplacementNamed(context, '/education');
+
+                  Navigator.pushReplacementNamed(context, '/education');
                 }
               },
               child: Column(children: [
@@ -136,6 +140,20 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
                         itemCount: 1,
                         itemBuilder: (context, index) {
                           return Stack(children: [
+                            Positioned(
+                              top: 150,
+                              left: 30,
+                              child: Container(
+                                  alignment: Alignment.topRight,
+                                  width: 220,
+                                  height: 220,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(
+                                        57, 54, 115, 0.07999999821186066),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.elliptical(237.75, 237.75)),
+                                  )),
+                            ),
                             Container(
                               width: MediaQuery.of(context).size.width,
                               margin: const EdgeInsets.fromLTRB(30, 0, 30, 0),
@@ -219,20 +237,6 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
                                                     child: Text("Save")))
                                           ]))),
                             ),
-                            Positioned(
-                              top: 150,
-                              left: 30,
-                              child: Container(
-                                  alignment: Alignment.topRight,
-                                  width: 220,
-                                  height: 220,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(
-                                        57, 54, 115, 0.07999999821186066),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.elliptical(237.75, 237.75)),
-                                  )),
-                            ),
                           ]);
                         })),
                 Container(
@@ -246,13 +250,9 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
                         alignment: FractionalOffset.bottomRight,
                         child: GestureDetector(
                             onTap: () {
-                              // Navigator.pushReplacementNamed(
-                              //     context, "/education");
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => Education(data:widget.data,
-                                  ),),);
+                              Navigator.pushReplacementNamed(
+                                  context, "/education");
+
                             },
                             child: Text(
                               'Back',
@@ -276,13 +276,9 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
                         child: GestureDetector(
                             onTap: () {
                               // Swiping in right direction.
-                              // Navigator.pushReplacementNamed(
-                              //     context, '/basic_info_employee');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BasicInfo(data:widget.data,
-                                  ),),);
+                              Navigator.pushReplacementNamed(
+                                  context, '/basic_info_employee');
+
                             },
                             child: Container(
                                 width: 13.596155166625977,
@@ -303,13 +299,9 @@ class _WorkExpState extends State<WorkExp> with InputValidationMixin {
                         child: GestureDetector(
                             onTap: () {
                               // Swiping in right direction.
-                              // Navigator.pushReplacementNamed(
-                              //     context, '/education');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => Education(data:widget.data,
-                                  ),),);
+                              Navigator.pushReplacementNamed(
+                                  context, '/education');
+
                             },
                             child: Container(
                                 width: 13.596155166625977,
